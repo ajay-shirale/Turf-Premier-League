@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Turf Premier League — Live Auction</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0c10;--surface:#111318;--border:#1e2330;--text:#e8eaf0;--muted:#5a6080;--dh:#f5a623;--dh-dim:rgba(245,166,35,0.13);--an:#00c9a7;--an-dim:rgba(0,201,167,0.13);--danger:#ff4757;--green:#2ecc71;--radius:14px;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 70% 40% at 15% 50%,rgba(245,166,35,0.07) 0%,transparent 60%),radial-gradient(ellipse 70% 40% at 85% 50%,rgba(0,201,167,0.07) 0%,transparent 60%);}
+  .page{position:relative;z-index:1;padding:20px 14px 80px;max-width:520px;margin:0 auto;}
+  header{text-align:center;margin-bottom:20px;}
+  header h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(30px,10vw,56px);letter-spacing:3px;line-height:1;background:linear-gradient(135deg,var(--dh),#fff,var(--an));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .live-badge{display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:4px 14px;border:1px solid rgba(255,71,87,0.4);border-radius:20px;background:rgba(255,71,87,0.08);font-size:12px;font-weight:700;letter-spacing:2px;color:var(--danger);}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--danger);animation:blink 1.2s infinite;}
+  @keyframes blink{0%,100%{opacity:1;transform:scale(1);box-shadow:0 0 0 0 rgba(255,71,87,0.5)}50%{opacity:.7;transform:scale(1.4);box-shadow:0 0 0 5px rgba(255,71,87,0)}}
+  #loading{text-align:center;padding:60px 20px;font-size:15px;color:var(--muted);letter-spacing:2px;}
+  .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--dh);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #name-screen{display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:36px 22px 28px;text-align:center;margin-top:10px;}
+  .trophy{font-size:48px;margin-bottom:14px;}
+  #name-screen h2{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;margin-bottom:8px;}
+  #name-screen p{color:var(--muted);font-size:13px;margin-bottom:26px;line-height:1.7;}
+  #name-input{width:100%;padding:16px 18px;margin-bottom:14px;background:rgba(255,255,255,0.05);border:2px solid var(--border);border-radius:12px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;outline:none;transition:border-color .2s;text-align:center;}
+  #name-input:focus{border-color:var(--dh);}
+  #name-input::placeholder{color:var(--muted);font-weight:500;font-size:15px;}
+  #enter-btn{width:100%;padding:16px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--dh),#e6920f);color:#000;font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s;text-transform:uppercase;}
+  #enter-btn:active{transform:scale(0.97);}
+  #name-error{display:none;color:var(--danger);font-size:12px;font-weight:600;letter-spacing:1px;margin-top:12px;}
+  #app{display:none;}
+  .toast{border-radius:10px;padding:12px 16px;text-align:center;font-size:13px;font-weight:700;letter-spacing:1px;margin-bottom:14px;}
+  .tdh{background:var(--dh-dim);border:1px solid rgba(245,166,35,0.4);color:var(--dh);}
+  .tan{background:var(--an-dim);border:1px solid rgba(0,201,167,0.4);color:var(--an);}
+  .tadm{background:rgba(255,71,87,0.08);border:1px solid rgba(255,71,87,0.35);color:var(--danger);}
+  .tsp{background:rgba(90,96,128,0.1);border:1px solid rgba(90,96,128,0.3);color:var(--muted);}
+  #online-bar{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--muted);font-weight:600;letter-spacing:1px;}
+  .gdot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;}
+  #online-count{color:var(--text);flex:1;}
+  #turn-banner{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:center;margin-bottom:16px;transition:border-color .4s,box-shadow .4s;}
+  #turn-banner.dh{border-color:var(--dh);box-shadow:0 0 22px rgba(245,166,35,0.18);}
+  #turn-banner.an{border-color:var(--an);box-shadow:0 0 22px rgba(0,201,167,0.18);}
+  #turn-banner.done{border-color:var(--muted);}
+  #turn-name{font-size:17px;font-weight:700;letter-spacing:1px;}
+  #turn-sub{font-size:12px;color:var(--muted);margin-top:3px;letter-spacing:1px;}
+  #wait-msg{display:none;background:rgba(255,71,87,0.08);border:1px solid rgba(255,71,87,0.3);border-radius:10px;padding:12px 16px;text-align:center;font-size:13px;font-weight:600;color:var(--danger);margin-bottom:12px;letter-spacing:1px;}
+  .teams-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+  .team-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color .3s,box-shadow .3s;}
+  .team-card.adh{border-color:var(--dh);box-shadow:0 0 18px rgba(245,166,35,0.15);}
+  .team-card.aan{border-color:var(--an);box-shadow:0 0 18px rgba(0,201,167,0.15);}
+  .team-head{padding:10px 12px 8px;border-bottom:1px solid rgba(255,255,255,0.05);}
+  .team-head.dh{background:linear-gradient(135deg,rgba(245,166,35,0.18),transparent);}
+  .team-head.an{background:linear-gradient(135deg,rgba(0,201,167,0.18),transparent);}
+  .team-tag{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;}
+  .team-tag.dh{color:var(--dh);}.team-tag.an{color:var(--an);}
+  .capt-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+  .capt-name{font-size:12px;font-weight:700;margin-top:1px;}
+  .team-body{padding:8px 10px 10px;}
+  .pslot{display:flex;align-items:center;gap:5px;padding:5px 8px;margin-bottom:4px;border-radius:7px;font-size:12px;font-weight:600;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);min-height:30px;transition:all .3s;}
+  .pslot.fdh{background:var(--dh-dim);border-color:rgba(245,166,35,0.3);}
+  .pslot.fan{background:var(--an-dim);border-color:rgba(0,201,167,0.3);}
+  .snum{font-size:10px;color:var(--muted);width:13px;flex-shrink:0;}
+  .sname{flex:1;font-size:12px;}
+  .empty .sname{color:var(--muted);font-style:italic;font-weight:400;font-size:11px;}
+  .xbtn{background:none;border:none;color:var(--danger);cursor:pointer;font-size:13px;padding:2px 5px;border-radius:4px;line-height:1;flex-shrink:0;transition:background .15s;}
+  .xbtn:hover{background:rgba(255,71,87,0.18);}
+  .tcount{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);padding:0 10px 8px;text-transform:uppercase;}
+  .pool-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--muted);text-align:center;margin-bottom:10px;}
+  .prow{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 14px;margin-bottom:8px;transition:border-color .18s,background .18s;}
+  .prow.pickable{cursor:pointer;}
+  .prow.pickable.pdh:hover{border-color:var(--dh);background:var(--dh-dim);}
+  .prow.pickable.pan:hover{border-color:var(--an);background:var(--an-dim);}
+  .prow.pickable:active{transform:scale(0.97);}
+  .prow .pname{flex:1;font-size:15px;font-weight:700;letter-spacing:1px;}
+  .phint{font-size:11px;font-weight:600;letter-spacing:1px;color:var(--muted);}
+  .abtns{display:flex;gap:5px;flex-shrink:0;}
+  .abtn{padding:5px 9px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s;border:1px solid;white-space:nowrap;}
+  .abdh{background:var(--dh-dim);color:var(--dh);border-color:rgba(245,166,35,0.4);}
+  .abdh:hover{background:rgba(245,166,35,0.25);}
+  .aban{background:var(--an-dim);color:var(--an);border-color:rgba(0,201,167,0.4);}
+  .aban:hover{background:rgba(0,201,167,0.25);}
+  .abedit{background:rgba(255,255,255,0.04);color:var(--text);border-color:var(--border);}
+  .abedit:hover{background:rgba(255,255,255,0.1);}
+  .abdel{background:rgba(255,71,87,0.08);color:var(--danger);border-color:rgba(255,71,87,0.35);}
+  .abdel:hover{background:rgba(255,71,87,0.2);}
+  #done-screen{display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px 20px;text-align:center;margin-bottom:20px;}
+  #done-screen h2{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:4px;background:linear-gradient(135deg,var(--dh),var(--an));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  #done-screen p{color:var(--muted);font-size:13px;margin-top:6px;}
+  #admin-panel{display:none;margin-top:20px;}
+  .admin-title{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--danger);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .admin-title::after{content:'';flex:1;height:1px;background:rgba(255,71,87,0.2);}
+  .add-row{display:flex;gap:8px;margin-bottom:6px;}
+  #new-player-input{flex:1;padding:12px 14px;background:rgba(255,255,255,0.05);border:2px solid var(--border);border-radius:10px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;outline:none;transition:border-color .2s;}
+  #new-player-input:focus{border-color:var(--danger);}
+  #new-player-input::placeholder{color:var(--muted);font-weight:500;font-size:13px;}
+  #add-btn{padding:12px 16px;border-radius:10px;background:rgba(255,71,87,0.12);color:var(--danger);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;border:1px solid rgba(255,71,87,0.3);transition:all .2s;white-space:nowrap;}
+  #add-btn:hover{background:rgba(255,71,87,0.22);}
+  #add-error{display:none;color:var(--danger);font-size:11px;font-weight:600;margin-bottom:8px;letter-spacing:1px;}
+  .bot-btns{display:flex;gap:10px;margin-top:20px;}
+  .btn-reset{flex:1;padding:13px;border-radius:12px;border:2px solid rgba(255,71,87,0.4);background:rgba(255,71,87,0.08);color:var(--danger);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase;transition:all .2s;}
+  .btn-reset:hover{background:rgba(255,71,87,0.18);}
+  .btn-logout{flex:1;padding:13px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;cursor:pointer;text-transform:uppercase;transition:all .2s;}
+  .btn-logout:hover{border-color:var(--muted);color:var(--text);}
+  .btn-reset:active,.btn-logout:active{transform:scale(0.97);}
+  #modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:200;align-items:center;justify-content:center;padding:20px;}
+  #modal-overlay.open{display:flex;}
+  #modal-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px 20px;width:100%;max-width:320px;}
+  #modal-box h3{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;margin-bottom:4px;}
+  #modal-box p{color:var(--muted);font-size:12px;margin-bottom:16px;}
+  .mrow{display:flex;gap:8px;margin-bottom:8px;}
+  .mbtn{flex:1;padding:13px;border-radius:10px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .2s;border:1px solid;}
+  .mbtn:active{transform:scale(0.97);}
+  .mbtn-dh{background:var(--dh-dim);color:var(--dh);border-color:rgba(245,166,35,0.4);}
+  .mbtn-an{background:var(--an-dim);color:var(--an);border-color:rgba(0,201,167,0.4);}
+  .mbtn-cancel{background:transparent;color:var(--muted);border-color:var(--border);}
+  .mbtn-save{background:var(--dh-dim);color:var(--dh);border-color:rgba(245,166,35,0.4);}
+  #edit-input{width:100%;padding:13px 14px;margin-bottom:14px;background:rgba(255,255,255,0.05);border:2px solid var(--border);border-radius:10px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;outline:none;transition:border-color .2s;}
+  #edit-input:focus{border-color:var(--dh);}
+  @keyframes popIn{0%{opacity:0;transform:scale(0.75) translateY(6px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+  .pop{animation:popIn .28s cubic-bezier(0.34,1.56,0.64,1) both;}
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>Turf Premier League</h1>
+    <div class="live-badge"><span class="live-dot"></span> LIVE PLAYER AUCTION</div>
+  </header>
+  <div id="loading"><div class="spinner"></div>Connecting...</div>
+  <div id="name-screen">
+    <div class="trophy">&#127942;</div>
+    <h2>Enter Your Name</h2>
+    <p>Captains are auto-detected.<br>Everyone else joins as spectator.</p>
+    <input id="name-input" type="text" placeholder="Type your name here..." autocomplete="off"/>
+    <button id="enter-btn" onclick="TPL.submitName()">Join Auction</button>
+    <div id="name-error">Please enter your name</div>
+  </div>
+  <div id="app">
+    <div id="toast" style="display:none"></div>
+    <div id="online-bar"><span class="gdot"></span><span id="online-count">Loading...</span></div>
+    <div id="wait-msg"></div>
+    <div id="turn-banner" class="dh">
+      <div id="turn-name">TEAM DHURANDHAR</div>
+      <div id="turn-sub">Ram's turn to pick</div>
+    </div>
+    <div id="done-screen">
+      <h2>Draft Complete!</h2>
+      <p>Both teams are set. Let the game begin!</p>
+    </div>
+    <div class="teams-row">
+      <div class="team-card" id="card-dh">
+        <div class="team-head dh">
+          <div class="team-tag dh">DHURANDHAR</div>
+          <div class="capt-label">Captain</div>
+          <div class="capt-name">Ram</div>
+        </div>
+        <div class="team-body" id="slots-dh"></div>
+        <div class="tcount" id="count-dh">1/7</div>
+      </div>
+      <div class="team-card" id="card-an">
+        <div class="team-head an">
+          <div class="team-tag an">ANIMAL</div>
+          <div class="capt-label">Captain</div>
+          <div class="capt-name">Sham</div>
+        </div>
+        <div class="team-body" id="slots-an"></div>
+        <div class="tcount" id="count-an">1/7</div>
+      </div>
+    </div>
+    <div class="pool-title">Available Players</div>
+    <div id="pool"></div>
+    <div id="admin-panel">
+      <div class="admin-title">Admin - Add Player</div>
+      <div class="add-row">
+        <input id="new-player-input" type="text" placeholder="New player name..."/>
+        <button id="add-btn" onclick="TPL.adminAdd()">+ Add</button>
+      </div>
+      <div id="add-error">Player already exists!</div>
+    </div>
+    <div class="bot-btns">
+      <button class="btn-reset" id="reset-btn" style="display:none" onclick="TPL.resetDraft()">Reset Draft</button>
+      <button class="btn-logout" onclick="TPL.doLogout()">Logout</button>
+    </div>
+  </div>
+</div>
+<div id="modal-overlay">
+  <div id="modal-box">
+    <div id="mv-edit" style="display:none">
+      <h3>Edit Player Name</h3>
+      <p>Update the name in the pool:</p>
+      <input id="edit-input" type="text" placeholder="New name..."/>
+      <div class="mrow">
+        <button class="mbtn mbtn-cancel" onclick="TPL.closeModal()">Cancel</button>
+        <button class="mbtn mbtn-save" onclick="TPL.doSaveEdit()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const FB = {apiKey:"AIzaSyDrLraL7qiou6aO7SPeN-5PZk-h9whxYh8",authDomain:"turf-premier-league.firebaseapp.com",databaseURL:"https://turf-premier-league-default-rtdb.firebaseio.com",projectId:"turf-premier-league",storageBucket:"turf-premier-league.firebasestorage.app",messagingSenderId:"584435363640",appId:"1:584435363640:web:db57c0e49b420b947f1bcd"};
+const POOL0 = ["Yuvraj","Ajay Indalkar","Akshay","Ajay Shirale","Bunty","Omkar","Niranjan","Niraj","Shreyash"];
+const CAPS  = {dh:"Ram",an:"Sham"};
+const MAX   = 7;
+const db    = getDatabase(initializeApp(FB));
+const GREF  = ref(db,'tpl/v4');
+let NAME=null,ROLE=null,STATE=null,MP=null;
+const isAdmin=()=>ROLE==='admin';
+const isCap=()=>ROLE==='dh'||ROLE==='an';
+const el=id=>document.getElementById(id);
+const show=id=>{el(id).style.display='block';};
+const hide=id=>{el(id).style.display='none';};
+const cp=s=>JSON.parse(JSON.stringify(s));
+const blank=()=>({dh:[CAPS.dh],an:[CAPS.an],available:[...POOL0],turn:'dh',done:false,online:[]});
+const save=async s=>{await set(GREF,s);};
+
+// restore session
+const sN=localStorage.getItem('tpl_n'),sR=localStorage.getItem('tpl_r');
+if(sN&&sR){NAME=sN;ROLE=sR;hide('loading');showApp();}
+else{hide('loading');show('name-screen');}
+
+// listen
+onValue(GREF,snap=>{const s=snap.val();if(!s){save(blank());return;}STATE=s;if(ROLE!==null)render(s);});
+
+window.TPL={};
+
+TPL.submitName=async function(){
+  const raw=el('name-input').value.trim();
+  if(!raw){show('name-error');return;}
+  hide('name-error');
+  NAME=raw;
+  const lo=raw.toLowerCase();
+  ROLE=lo==='ram'?'dh':lo==='sham'?'an':lo==='ajay'?'admin':'spectator';
+  localStorage.setItem('tpl_n',NAME);localStorage.setItem('tpl_r',ROLE);
+  const snap=await get(GREF);
+  const s=snap.val()||blank();
+  if(!(s.online||[]).includes(NAME))s.online=[...(s.online||[]),NAME];
+  await save(s);showApp();
+};
+el('name-input').addEventListener('keydown',e=>{if(e.key==='Enter')TPL.submitName();});
+
+function showApp(){
+  hide('name-screen');hide('loading');show('app');
+  const t=el('toast');t.style.display='block';
+  if(ROLE==='dh'){t.className='toast tdh';t.textContent='Welcome Captain Ram! Pick for DHURANDHAR';}
+  else if(ROLE==='an'){t.className='toast tan';t.textContent='Welcome Captain Sham! Pick for ANIMAL';}
+  else if(isAdmin()){t.className='toast tadm';t.textContent='Welcome Admin Ajay! Full control enabled';}
+  else{t.className='toast tsp';t.textContent='Welcome '+NAME+'! Watching as spectator';}
+  if(isAdmin()){show('admin-panel');el('reset-btn').style.display='block';}
+}
+
+TPL.doLogout=async function(){
+  if(STATE){const s=cp(STATE);s.online=(s.online||[]).filter(n=>n!==NAME);await save(s);}
+  localStorage.removeItem('tpl_n');localStorage.removeItem('tpl_r');
+  NAME=null;ROLE=null;hide('app');hide('admin-panel');el('reset-btn').style.display='none';
+  el('name-input').value='';el('toast').style.display='none';show('name-screen');
+};
+
+TPL.captainPick=async function(pName){
+  if(!STATE||!isCap())return;
+  if(STATE.turn!==ROLE)return;
+  if(STATE[ROLE].length>=MAX){alert('Your team is full! Max '+MAX+' players.');return;}
+  const av=STATE.available||[];
+  if(!av.includes(pName))return;
+  const s=cp(STATE);
+  s.available=s.available.filter(p=>p!==pName);
+  s[ROLE].push(pName);
+  if(s.dh.length>=MAX&&s.an.length>=MAX)s.done=true;
+  else s.turn=ROLE==='dh'?'an':'dh';
+  await save(s);
+};
+
+TPL.adminAssign=async function(pName,team){
+  if(!STATE||!isAdmin())return;
+  const s=cp(STATE);
+  const av=s.available||[];
+  if(!av.includes(pName)){alert('Player not in pool!');return;}
+  if(s[team].length>=MAX){alert('Team '+(team==='dh'?'DHURANDHAR':'ANIMAL')+' is full! Max '+MAX+' players. Remove one first.');return;}
+  s.available=s.available.filter(p=>p!==pName);
+  s[team].push(pName);
+  if(s.dh.length>=MAX&&s.an.length>=MAX)s.done=true;
+  await save(s);
+};
+
+TPL.removeFromTeam=async function(team,pName){
+  if(!STATE||!isAdmin())return;
+  if(pName===CAPS[team])return;
+  const s=cp(STATE);
+  s[team]=s[team].filter(p=>p!==pName);
+  if(!(s.available||[]).includes(pName))s.available.push(pName);
+  s.done=false;await save(s);
+};
+
+TPL.deletePool=async function(pName){
+  if(!STATE||!isAdmin())return;
+  const s=cp(STATE);s.available=s.available.filter(p=>p!==pName);await save(s);
+};
+
+TPL.adminAdd=async function(){
+  const inp=el('new-player-input');const n=inp.value.trim();
+  if(!n||!STATE)return;
+  const s=cp(STATE);
+  const all=[...(s.available||[]),...(s.dh||[]),...(s.an||[])];
+  if(all.includes(n)){show('add-error');setTimeout(()=>hide('add-error'),2500);return;}
+  s.available.push(n);await save(s);inp.value='';
+};
+el('new-player-input').addEventListener('keydown',e=>{if(e.key==='Enter')TPL.adminAdd();});
+
+TPL.openEdit=function(pName){
+  MP=pName;el('edit-input').value=pName;
+  show('mv-edit');el('modal-overlay').classList.add('open');
+};
+TPL.doSaveEdit=async function(){
+  const nv=el('edit-input').value.trim();
+  if(!nv||!STATE||!MP){TPL.closeModal();return;}
+  const s=cp(STATE);s.available=s.available.map(p=>p===MP?nv:p);
+  await save(s);TPL.closeModal();
+};
+el('edit-input').addEventListener('keydown',e=>{if(e.key==='Enter')TPL.doSaveEdit();});
+TPL.closeModal=function(){el('modal-overlay').classList.remove('open');hide('mv-edit');MP=null;};
+
+TPL.resetDraft=async function(){
+  if(!isAdmin())return;const s=blank();s.online=STATE?.online||[];await save(s);
+};
+
+function render(s){
+  renderTeam('dh',s.dh||[]);
+  renderTeam('an',s.an||[]);
+  renderPool(s);
+  renderBanner(s);
+  el('online-count').textContent=(s.online||[]).length>0?(s.online.length+' online: '+s.online.join(', ')):'Waiting...';
+  el('card-dh').className='team-card'+(s.turn==='dh'&&!s.done?' adh':'');
+  el('card-an').className='team-card'+(s.turn==='an'&&!s.done?' aan':'');
+  el('done-screen').style.display=s.done?'block':'none';
+  const wm=el('wait-msg');
+  if(!s.done&&isCap()&&s.turn!==ROLE){wm.style.display='block';wm.textContent='Waiting for '+(s.turn==='dh'?'Ram (DHURANDHAR)':'Sham (ANIMAL)')+' to pick...';}
+  else wm.style.display='none';
+}
+
+function renderTeam(key,players){
+  const body=el('slots-'+key);
+  body.innerHTML='';
+  for(let i=0;i<MAX;i++){
+    const p=players[i];
+    const slot=document.createElement('div');
+    if(p){
+      const cap=p===CAPS[key];
+      slot.className='pslot f'+key+' pop';
+      slot.innerHTML='<span class="snum">'+(i+1)+'</span><span class="sname">'+p+'</span><span style="font-size:11px">'+(cap?'👑':'🏏')+'</span>';
+      if(isAdmin()&&!cap){
+        const xb=document.createElement('button');
+        xb.className='xbtn';xb.textContent='✕';
+        xb.addEventListener('click',function(e){e.stopPropagation();TPL.removeFromTeam(key,p);});
+        slot.appendChild(xb);
+      }
+    }else{
+      slot.className='pslot empty';
+      slot.innerHTML='<span class="snum">'+(i+1)+'</span><span class="sname">-</span>';
+    }
+    body.appendChild(slot);
+  }
+  el('count-'+key).textContent=players.length+'/'+MAX;
+}
+
+function renderPool(s){
+  const pool=el('pool');const av=s.available||[];
+  if(av.length===0){pool.innerHTML='<p style="color:var(--muted);font-size:13px;text-align:center;padding:12px 0">No players available</p>';return;}
+  pool.innerHTML='';
+  const canPick=isCap()&&!s.done&&s.turn===ROLE;
+  av.forEach(p=>{
+    const row=document.createElement('div');
+    if(isAdmin()){
+      row.className='prow';
+      const nameSpan=document.createElement('span');nameSpan.className='pname';nameSpan.textContent=p;
+      const btns=document.createElement('div');btns.className='abtns';
+      const bDH=document.createElement('button');bDH.className='abtn abdh';bDH.textContent='→ DH';bDH.addEventListener('click',()=>TPL.adminAssign(p,'dh'));
+      const bAN=document.createElement('button');bAN.className='abtn aban';bAN.textContent='→ AN';bAN.addEventListener('click',()=>TPL.adminAssign(p,'an'));
+      const bEd=document.createElement('button');bEd.className='abtn abedit';bEd.textContent='✏️';bEd.addEventListener('click',()=>TPL.openEdit(p));
+      const bDl=document.createElement('button');bDl.className='abtn abdel';bDl.textContent='🗑️';bDl.addEventListener('click',()=>TPL.deletePool(p));
+      btns.appendChild(bDH);btns.appendChild(bAN);btns.appendChild(bEd);btns.appendChild(bDl);
+      row.appendChild(nameSpan);row.appendChild(btns);
+    } else if(canPick){
+      row.className='prow pickable p'+ROLE;
+      row.innerHTML='<span class="pname">'+p+'</span><span class="phint">TAP TO PICK</span>';
+      row.addEventListener('click',()=>TPL.captainPick(p));
+    } else {
+      row.className='prow';row.style.opacity='0.4';
+      row.innerHTML='<span class="pname">'+p+'</span><span class="phint">-</span>';
+    }
+    pool.appendChild(row);
+  });
+}
+
+function renderBanner(s){
+  const b=el('turn-banner');
+  if(s.done){b.className='done';el('turn-name').textContent='Draft Complete!';el('turn-sub').textContent='All players selected';return;}
+  b.className=s.turn;
+  el('turn-name').textContent=s.turn==='dh'?'TEAM DHURANDHAR':'TEAM ANIMAL';
+  el('turn-sub').textContent=s.turn==='dh'?"Ram's turn to pick":"Sham's turn to pick";
+}
+</script>
+</body>
+</html>
