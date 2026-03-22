@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuruBow — Bows & Scrunchies by Suruchi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --pink:#f06292;
+  --pink-light:#f8bbd0;
+  --pink-deep:#e91e8c;
+  --pink-pale:#fff0f5;
+  --teal:#4dd0c4;
+  --teal-light:#b2ebf2;
+  --white:#fffbfd;
+  --dark:#2d1a22;
+  --muted:#a07080;
+  --border:rgba(240,98,146,0.15);
+  --card-bg:#fff6f9;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--white);
+  color:var(--dark);
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* ── Custom Cursor ── */
+#cur{
+  position:fixed;width:14px;height:14px;border-radius:50%;
+  background:var(--pink);pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:width .25s,height .25s,background .25s;
+  box-shadow:0 0 12px rgba(240,98,146,.5);
+}
+#cur.big{width:48px;height:48px;background:rgba(240,98,146,.15);box-shadow:none;border:2px solid var(--pink)}
+#cur-ring{
+  position:fixed;width:38px;height:38px;border-radius:50%;
+  border:1.5px solid rgba(240,98,146,.35);pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);transition:all .1s;
+}
+
+/* ── BG Canvas ── */
+#bg-canvas{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:0;pointer-events:none;
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1rem 4rem;
+  background:rgba(255,251,253,0.88);
+  backdrop-filter:blur(18px);
+  border-bottom:1.5px solid var(--border);
+  box-shadow:0 2px 24px rgba(240,98,146,.07);
+}
+.nav-logo img{height:52px;object-fit:contain}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{
+  text-decoration:none;color:var(--muted);
+  font-size:.82rem;font-weight:600;letter-spacing:.06em;
+  transition:color .2s;position:relative;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-3px;left:0;right:0;
+  height:2px;background:var(--pink);border-radius:2px;
+  transform:scaleX(0);transition:transform .25s;transform-origin:center;
+}
+.nav-links a:hover{color:var(--pink)}
+.nav-links a:hover::after{transform:scaleX(1)}
+.nav-right{display:flex;align-items:center;gap:1rem}
+.cart-btn{
+  position:relative;background:var(--pink);color:#fff;
+  border:none;padding:.55rem 1.2rem;border-radius:50px;cursor:none;
+  font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700;
+  display:flex;align-items:center;gap:.5rem;
+  transition:transform .2s,box-shadow .2s;
+  box-shadow:0 4px 16px rgba(240,98,146,.3);
+}
+.cart-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(240,98,146,.4)}
+.cart-count{
+  background:#fff;color:var(--pink);border-radius:50%;
+  width:20px;height:20px;display:flex;align-items:center;justify-content:center;
+  font-size:.72rem;font-weight:800;
+}
+
+/* ── HERO ── */
+.hero{
+  position:relative;z-index:10;
+  min-height:100vh;display:grid;grid-template-columns:1fr 1fr;
+  align-items:center;padding:6rem 4rem 4rem;gap:2rem;
+}
+.hero-text .eyebrow{
+  display:inline-flex;align-items:center;gap:.6rem;
+  background:var(--pink-pale);border:1.5px solid var(--border);
+  border-radius:50px;padding:.4rem 1rem;
+  font-size:.72rem;font-weight:700;letter-spacing:.1em;color:var(--pink);
+  margin-bottom:1.5rem;
+  opacity:0;transform:translateY(16px);
+  animation:up .7s ease .2s forwards;
+}
+.bow-sparkle{animation:spin 3s linear infinite;display:inline-block}
+.hero-text h1{
+  font-family:'Pacifico',cursive;
+  font-size:clamp(3rem,6vw,5.5rem);line-height:1.15;
+  color:var(--dark);
+  opacity:0;transform:translateY(24px);
+  animation:up .9s ease .4s forwards;
+}
+.hero-text h1 span{color:var(--pink)}
+.hero-text h1 .teal{color:var(--teal)}
+.hero-sub{
+  font-size:1rem;font-weight:400;line-height:1.8;color:var(--muted);
+  max-width:40ch;margin-top:1.2rem;
+  opacity:0;transform:translateY(16px);
+  animation:up .7s ease .65s forwards;
+}
+.hero-actions{
+  display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-top:2rem;
+  opacity:0;transform:translateY(16px);
+  animation:up .7s ease .85s forwards;
+}
+.btn-pink{
+  padding:.85rem 2rem;text-decoration:none;cursor:none;
+  font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:800;
+  background:linear-gradient(135deg,var(--pink),var(--pink-deep));
+  color:#fff;border-radius:50px;border:none;
+  box-shadow:0 6px 20px rgba(240,98,146,.35);
+  transition:transform .2s,box-shadow .2s;display:inline-block;
+}
+.btn-pink:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 10px 30px rgba(240,98,146,.45)}
+.btn-outline{
+  padding:.85rem 1.8rem;text-decoration:none;cursor:none;
+  font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:700;
+  border:2px solid var(--pink);color:var(--pink);
+  border-radius:50px;background:transparent;
+  transition:background .2s,color .2s,transform .2s;display:inline-block;
+}
+.btn-outline:hover{background:var(--pink-pale);transform:translateY(-2px)}
+
+.hero-badge{
+  display:flex;gap:2rem;margin-top:2.5rem;
+  opacity:0;animation:up .6s ease 1.1s forwards;
+}
+.badge-item{text-align:center}
+.badge-item .num{font-family:'Pacifico',cursive;font-size:1.6rem;color:var(--pink)}
+.badge-item .lbl{font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+/* Hero 3D canvas */
+.hero-canvas-wrap{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  min-height:500px;
+  opacity:0;animation:up .9s ease .5s forwards;
+}
+#hero-canvas{width:100%;height:500px;border-radius:24px}
+.hero-float-tag{
+  position:absolute;bottom:2rem;left:-1rem;
+  background:#fff;border:1.5px solid var(--border);
+  border-radius:16px;padding:.8rem 1.2rem;
+  box-shadow:0 8px 24px rgba(240,98,146,.12);
+  display:flex;align-items:center;gap:.8rem;
+  animation:floatY 3s ease-in-out infinite;
+}
+.tag-dot{width:10px;height:10px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal)}
+.tag-text{font-size:.75rem;font-weight:700;color:var(--dark)}
+.tag-text span{display:block;font-size:.65rem;font-weight:400;color:var(--muted)}
+
+.hero-float-tag2{
+  position:absolute;top:2rem;right:-1rem;
+  background:var(--pink);border-radius:12px;padding:.7rem 1rem;
+  box-shadow:0 8px 20px rgba(240,98,146,.3);color:#fff;
+  font-size:.75rem;font-weight:700;
+  animation:floatY 4s ease-in-out infinite .5s;
+}
+
+/* ── MARQUEE ── */
+.marquee-wrap{
+  overflow:hidden;padding:.9rem 0;
+  background:linear-gradient(135deg,var(--pink),var(--pink-deep));
+  position:relative;z-index:10;
+}
+.marquee-track{
+  display:flex;white-space:nowrap;
+  animation:marquee 18s linear infinite;
+}
+.marquee-track span{
+  font-size:.78rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(255,255,255,.8);padding:0 2rem;
+}
+.marquee-track em{color:#fff;font-style:normal}
+
+/* ── SECTION STYLES ── */
+.section{position:relative;z-index:10}
+.section-head{text-align:center;margin-bottom:3.5rem}
+.section-label{
+  display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--pink);margin-bottom:.8rem;
+}
+.section-head h2{
+  font-family:'Pacifico',cursive;
+  font-size:clamp(2rem,4vw,3rem);color:var(--dark);
+}
+.section-head h2 span{color:var(--pink)}
+.section-head p{
+  font-size:.92rem;color:var(--muted);max-width:50ch;
+  margin:.8rem auto 0;line-height:1.8;
+}
+
+/* ── PRODUCTS ── */
+.products{padding:5rem 4rem;background:var(--white)}
+.products-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:1.5rem;
+}
+.product-card{
+  background:var(--card-bg);border-radius:24px;overflow:hidden;
+  border:1.5px solid var(--border);cursor:none;
+  transition:transform .3s,box-shadow .3s;position:relative;
+}
+.product-card:hover{transform:translateY(-8px) scale(1.01);box-shadow:0 20px 50px rgba(240,98,146,.18)}
+.product-card-canvas{width:100%;height:220px;display:block}
+.product-card-body{padding:1.2rem 1.4rem 1.4rem}
+.product-tag{
+  display:inline-block;font-size:.62rem;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;padding:.25rem .7rem;border-radius:50px;
+  margin-bottom:.7rem;
+}
+.tag-new{background:var(--teal-light);color:#00796b}
+.tag-hot{background:#fce4ec;color:var(--pink-deep)}
+.tag-sale{background:#fff3e0;color:#e65100}
+.product-name{font-size:1rem;font-weight:800;margin-bottom:.25rem;color:var(--dark)}
+.product-sub{font-size:.78rem;color:var(--muted);margin-bottom:.8rem}
+.product-bottom{display:flex;justify-content:space-between;align-items:center}
+.product-price{font-family:'Pacifico',cursive;font-size:1.2rem;color:var(--pink)}
+.add-btn{
+  background:var(--pink);color:#fff;border:none;border-radius:50px;
+  padding:.45rem 1rem;font-family:'Nunito',sans-serif;font-size:.78rem;font-weight:700;
+  cursor:none;transition:background .2s,transform .2s;
+  box-shadow:0 4px 12px rgba(240,98,146,.3);
+}
+.add-btn:hover{background:var(--pink-deep);transform:scale(1.05)}
+.product-wish{
+  position:absolute;top:1rem;right:1rem;background:#fff;
+  border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  border:1.5px solid var(--border);font-size:.9rem;cursor:none;
+  transition:transform .2s,background .2s;
+}
+.product-wish:hover{background:var(--pink-pale);transform:scale(1.1)}
+
+/* ── HOW IT WORKS ── */
+.how{padding:5rem 4rem;background:var(--pink-pale)}
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;max-width:900px;margin:0 auto}
+.how-card{
+  background:#fff;border-radius:20px;padding:2rem 1.5rem;text-align:center;
+  border:1.5px solid var(--border);
+  transition:transform .3s,box-shadow .3s;
+}
+.how-card:hover{transform:translateY(-5px);box-shadow:0 12px 32px rgba(240,98,146,.12)}
+.how-icon{font-size:2.5rem;margin-bottom:1rem;display:block}
+.how-num{
+  font-family:'Pacifico',cursive;font-size:2.5rem;
+  color:var(--pink-light);line-height:1;margin-bottom:.5rem;
+}
+.how-title{font-weight:800;font-size:.95rem;margin-bottom:.5rem;color:var(--dark)}
+.how-desc{font-size:.82rem;color:var(--muted);line-height:1.7}
+
+/* ── TESTIMONIALS ── */
+.testimonials{padding:5rem 4rem;background:var(--white)}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.testi-card{
+  background:var(--card-bg);border-radius:20px;padding:1.8rem;
+  border:1.5px solid var(--border);position:relative;overflow:hidden;
+}
+.testi-card::before{
+  content:'❝';position:absolute;top:.5rem;right:1rem;
+  font-size:4rem;color:var(--pink-light);opacity:.4;line-height:1;
+  font-family:Georgia,serif;
+}
+.testi-stars{color:var(--pink);font-size:.9rem;margin-bottom:.8rem;letter-spacing:.1em}
+.testi-text{font-size:.88rem;line-height:1.8;color:var(--muted);margin-bottom:1rem}
+.testi-author{display:flex;align-items:center;gap:.7rem}
+.testi-avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--pink),var(--teal));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;color:#fff;font-size:.82rem;
+}
+.testi-name{font-weight:700;font-size:.82rem;color:var(--dark)}
+.testi-loc{font-size:.7rem;color:var(--muted)}
+
+/* ── NEWSLETTER ── */
+.newsletter{
+  padding:5rem 4rem;
+  background:linear-gradient(135deg,#fce4ec,#e0f7fa);
+  position:relative;overflow:hidden;z-index:10;
+}
+.newsletter::before{
+  content:'🎀';position:absolute;font-size:8rem;opacity:.08;
+  top:-1rem;left:2rem;transform:rotate(-15deg);
+}
+.newsletter::after{
+  content:'🎀';position:absolute;font-size:6rem;opacity:.08;
+  bottom:-1rem;right:4rem;transform:rotate(20deg);
+}
+.newsletter-inner{max-width:540px;margin:0 auto;text-align:center}
+.newsletter h2{font-family:'Pacifico',cursive;font-size:2.2rem;margin-bottom:.8rem;color:var(--dark)}
+.newsletter p{font-size:.9rem;color:var(--muted);line-height:1.8;margin-bottom:2rem}
+.email-form{display:flex;gap:.8rem;flex-wrap:wrap;justify-content:center}
+.email-form input{
+  flex:1;min-width:220px;padding:.85rem 1.3rem;border-radius:50px;
+  border:2px solid var(--border);background:#fff;outline:none;
+  font-family:'Nunito',sans-serif;font-size:.88rem;color:var(--dark);
+  transition:border-color .2s;
+}
+.email-form input:focus{border-color:var(--pink)}
+.email-form input::placeholder{color:var(--muted)}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--dark);color:rgba(255,255,255,.7);
+  padding:3rem 4rem;position:relative;z-index:10;
+}
+.footer-inner{
+  display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;
+  gap:3rem;margin-bottom:2.5rem;
+}
+.footer-brand img{height:44px;object-fit:contain;filter:brightness(0) invert(1) opacity(.9);margin-bottom:1rem}
+.footer-tagline{font-size:.82rem;line-height:1.8;opacity:.6;max-width:28ch}
+.footer-col h4{
+  font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--pink-light);margin-bottom:1rem;
+}
+.footer-col ul{list-style:none}
+.footer-col ul li{margin-bottom:.5rem}
+.footer-col ul li a{
+  text-decoration:none;font-size:.82rem;color:rgba(255,255,255,.5);
+  transition:color .2s;
+}
+.footer-col ul li a:hover{color:var(--pink-light)}
+.footer-social{display:flex;gap:.8rem;margin-top:1rem}
+.soc-btn{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;cursor:none;transition:background .2s,transform .2s;
+  text-decoration:none;color:rgba(255,255,255,.6);
+}
+.soc-btn:hover{background:var(--pink);color:#fff;transform:translateY(-2px)}
+.footer-bottom{
+  border-top:1px solid rgba(255,255,255,.08);padding-top:1.5rem;
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:.72rem;
+}
+
+/* ── CART DRAWER ── */
+.cart-overlay{
+  position:fixed;inset:0;background:rgba(45,26,34,.4);z-index:300;
+  opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(4px);
+}
+.cart-overlay.open{opacity:1;pointer-events:all}
+.cart-drawer{
+  position:fixed;top:0;right:0;bottom:0;width:380px;
+  background:#fff;z-index:301;
+  transform:translateX(100%);transition:transform .4s cubic-bezier(.25,.46,.45,.94);
+  display:flex;flex-direction:column;
+  box-shadow:-8px 0 40px rgba(240,98,146,.12);
+}
+.cart-drawer.open{transform:none}
+.cart-head{
+  padding:1.5rem;border-bottom:1.5px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.cart-head h3{font-family:'Pacifico',cursive;font-size:1.3rem;color:var(--dark)}
+.close-cart{
+  background:var(--pink-pale);border:none;border-radius:50%;
+  width:34px;height:34px;cursor:none;font-size:1rem;
+  color:var(--pink);transition:background .2s;
+}
+.close-cart:hover{background:var(--pink-light)}
+.cart-items{flex:1;overflow-y:auto;padding:1rem 1.5rem}
+.cart-empty{
+  text-align:center;padding:3rem 1rem;color:var(--muted);
+}
+.cart-empty .empty-icon{font-size:3rem;display:block;margin-bottom:1rem}
+.cart-item{
+  display:flex;gap:1rem;padding:1rem 0;
+  border-bottom:1px solid var(--border);
+}
+.cart-item-img{
+  width:64px;height:64px;border-radius:12px;
+  background:var(--pink-pale);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:1.8rem;
+}
+.cart-item-info{flex:1}
+.cart-item-name{font-weight:700;font-size:.88rem;color:var(--dark)}
+.cart-item-sub{font-size:.72rem;color:var(--muted);margin:.2rem 0}
+.cart-item-price{font-family:'Pacifico',cursive;color:var(--pink);font-size:.95rem}
+.cart-item-remove{
+  background:none;border:none;color:var(--muted);cursor:none;
+  font-size:1rem;padding:.2rem;transition:color .2s;
+}
+.cart-item-remove:hover{color:var(--pink)}
+.cart-foot{
+  padding:1.5rem;border-top:1.5px solid var(--border);
+  background:var(--pink-pale);
+}
+.cart-total{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:1rem;
+}
+.cart-total span{font-weight:600;font-size:.88rem;color:var(--muted)}
+.cart-total strong{font-family:'Pacifico',cursive;font-size:1.4rem;color:var(--pink)}
+.checkout-btn{
+  width:100%;padding:1rem;background:linear-gradient(135deg,var(--pink),var(--pink-deep));
+  color:#fff;border:none;border-radius:50px;cursor:none;
+  font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;
+  transition:transform .2s,box-shadow .2s;
+  box-shadow:0 6px 20px rgba(240,98,146,.35);
+}
+.checkout-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(240,98,146,.45)}
+
+/* Scroll reveal */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s ease}
+.reveal.on{opacity:1;transform:none}
+.reveal.d1{transition-delay:.12s}
+.reveal.d2{transition-delay:.24s}
+.reveal.d3{transition-delay:.36s}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--dark);color:#fff;padding:.8rem 1.6rem;border-radius:50px;
+  font-size:.85rem;font-weight:600;z-index:400;
+  transition:transform .35s cubic-bezier(.25,.46,.45,.94);
+  display:flex;align-items:center;gap:.6rem;pointer-events:none;
+  box-shadow:0 8px 24px rgba(0,0,0,.25);
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast-icon{font-size:1.1rem}
+
+@keyframes up{to{opacity:1;transform:none}}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes popIn{0%{transform:scale(0) rotate(-10deg)}80%{transform:scale(1.1) rotate(3deg)}100%{transform:scale(1) rotate(0)}}
+
+@media(max-width:900px){
+  nav{padding:1rem 1.5rem}
+  .nav-links{display:none}
+  .hero{grid-template-columns:1fr;padding:5rem 1.5rem 3rem}
+  .hero-canvas-wrap{min-height:300px}
+  #hero-canvas{height:300px}
+  .products,.how,.testimonials,.newsletter{padding:4rem 1.5rem}
+  .how-grid,.testi-grid{grid-template-columns:1fr}
+  .footer-inner{grid-template-columns:1fr 1fr}
+  footer{padding:2.5rem 1.5rem}
+  .cart-drawer{width:100%;max-width:400px}
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-ring"></div>
+<canvas id="bg-canvas"></canvas>
+
+<!-- CART OVERLAY -->
+<div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
+<div class="cart-drawer" id="cart-drawer">
+  <div class="cart-head">
+    <h3>🎀 Your Bag</h3>
+    <button class="close-cart" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cart-items">
+    <div class="cart-empty">
+      <span class="empty-icon">🎀</span>
+      <p style="font-weight:600;color:var(--dark);margin-bottom:.4rem">Your bag is empty!</p>
+      <p style="font-size:.82rem">Add some cute bows & scrunchies 💕</p>
+    </div>
+  </div>
+  <div class="cart-foot">
+    <div class="cart-total">
+      <span>Total</span>
+      <strong id="cart-total">₹0</strong>
+    </div>
+    <button class="checkout-btn" onclick="checkout()">Checkout — Place Order 🛍️</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon">🎀</span>
+  <span id="toast-msg">Added to bag!</span>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <img src="/mnt/user-data/uploads/SuruLogo-removebg-preview__1_.png" alt="SuruBow by Suruchi">
+  </div>
+  <ul class="nav-links">
+    <li><a href="#products">Shop</a></li>
+    <li><a href="#how">How it Works</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="cart-btn" onclick="openCart()">
+      🛍️ Cart <span class="cart-count" id="cart-count">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero section">
+  <div class="hero-text">
+    <div class="eyebrow">
+      <span class="bow-sparkle">🎀</span> Handcrafted with love in India
+    </div>
+    <h1>
+      Bows that<br>
+      make you<br>
+      <span>feel</span> <span class="teal">cute</span>!
+    </h1>
+    <p class="hero-sub">Discover our dreamy collection of handcrafted bows, scrunchies & hair accessories — made with premium fabrics & loads of love 💕</p>
+    <div class="hero-actions">
+      <a href="#products" class="btn-pink">Shop Collection 🎀</a>
+      <a href="#how" class="btn-outline">Our Story ✨</a>
+    </div>
+    <div class="hero-badge">
+      <div class="badge-item">
+        <div class="num">500+</div>
+        <div class="lbl">Happy Customers</div>
+      </div>
+      <div class="badge-item">
+        <div class="num">50+</div>
+        <div class="lbl">Bow Styles</div>
+      </div>
+      <div class="badge-item">
+        <div class="num">100%</div>
+        <div class="lbl">Handcrafted</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-canvas-wrap">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-float-tag">
+      <div class="tag-dot"></div>
+      <div class="tag-text">
+        New Drop! 🎉
+        <span>Spring Collection '25</span>
+      </div>
+    </div>
+    <div class="hero-float-tag2">⭐ 4.9 / 5 Rating</div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track" aria-hidden="true">
+    <span>Bows</span><em>🎀</em>
+    <span>Scrunchies</span><em>✨</em>
+    <span>Hair Clips</span><em>💕</em>
+    <span>Headbands</span><em>🌸</em>
+    <span>Gift Sets</span><em>🎁</em>
+    <span>Handcrafted</span><em>💖</em>
+    <span>Bows</span><em>🎀</em>
+    <span>Scrunchies</span><em>✨</em>
+    <span>Hair Clips</span><em>💕</em>
+    <span>Headbands</span><em>🌸</em>
+    <span>Gift Sets</span><em>🎁</em>
+    <span>Handcrafted</span><em>💖</em>
+  </div>
+</div>
+
+<!-- PRODUCTS -->
+<section class="products section" id="products">
+  <div class="section-head reveal">
+    <div class="section-label">🛍️ Shop Now</div>
+    <h2>Our <span>Bestsellers</span></h2>
+    <p>Each bow & scrunchie is lovingly handcrafted — no two are exactly alike!</p>
+  </div>
+  <div class="products-grid" id="products-grid"></div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how section" id="how">
+  <div class="section-head reveal">
+    <div class="section-label">💖 Our Promise</div>
+    <h2>Why <span>SuruBow</span>?</h2>
+    <p>Every piece is made with premium fabric, attention to detail, and a whole lot of love.</p>
+  </div>
+  <div class="how-grid">
+    <div class="how-card reveal">
+      <div class="how-num">01</div>
+      <span class="how-icon">✂️</span>
+      <div class="how-title">Handcrafted with Care</div>
+      <div class="how-desc">Every bow and scrunchie is cut, stitched, and finished by hand — ensuring perfect quality every time.</div>
+    </div>
+    <div class="how-card reveal d1">
+      <div class="how-num">02</div>
+      <span class="how-icon">🎀</span>
+      <div class="how-title">Premium Fabrics</div>
+      <div class="how-desc">We use only the softest satin, velvet, and cotton fabrics — gentle on hair and gorgeous to look at.</div>
+    </div>
+    <div class="how-card reveal d2">
+      <div class="how-num">03</div>
+      <span class="how-icon">📦</span>
+      <div class="how-title">Cute Packaging</div>
+      <div class="how-desc">Your order arrives in our signature gift-ready packaging — perfect for gifting or treating yourself!</div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials section" id="reviews">
+  <div class="section-head reveal">
+    <div class="section-label">💌 Love Notes</div>
+    <h2>Girls who <span>love</span> SuruBow</h2>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"The bow I ordered is absolutely gorgeous! The fabric is so soft and the size is perfect. Already ordered three more! 💕"</p>
+      <div class="testi-author">
+        <div class="testi-avatar">P</div>
+        <div><div class="testi-name">Priya S.</div><div class="testi-loc">Mumbai, India</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal d1">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"Suruchi packs everything so beautifully — felt like opening a gift! The scrunchies don't damage my hair at all 🌸"</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:linear-gradient(135deg,var(--teal),var(--pink))">A</div>
+        <div><div class="testi-name">Ananya R.</div><div class="testi-loc">Pune, India</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal d2">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"I gifted a SuruBow set to my bestie and she loved it SO much! Best handmade accessories brand in India 🎀✨"</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:linear-gradient(135deg,#ff8a65,var(--pink))">N</div>
+        <div><div class="testi-name">Nisha K.</div><div class="testi-loc">Bangalore, India</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="newsletter section" id="contact">
+  <div class="newsletter-inner reveal">
+    <div class="section-label">💌 Stay Cute</div>
+    <h2>Join the Bow Club!</h2>
+    <p>Get early access to new drops, exclusive offers, and cute styling tips delivered to your inbox 🎀</p>
+    <div class="email-form">
+      <input type="email" placeholder="your@email.com" id="email-input">
+      <button class="btn-pink" onclick="subscribe()" style="border:none;cursor:none">Subscribe 💕</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="footer-section">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="/mnt/user-data/uploads/SuruLogo-removebg-preview__1_.png" alt="SuruBow">
+      <p class="footer-tagline">Handcrafted bows & scrunchies made with love in India. 🎀</p>
+      <div class="footer-social">
+        <a href="#" class="soc-btn">📸</a>
+        <a href="#" class="soc-btn">💬</a>
+        <a href="#" class="soc-btn">📌</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="#">Bows</a></li>
+        <li><a href="#">Scrunchies</a></li>
+        <li><a href="#">Headbands</a></li>
+        <li><a href="#">Gift Sets</a></li>
+        <li><a href="#">New Arrivals</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Info</h4>
+      <ul>
+        <li><a href="#">About Suruchi</a></li>
+        <li><a href="#">Custom Orders</a></li>
+        <li><a href="#">Wholesale</a></li>
+        <li><a href="#">Returns Policy</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="#">Instagram DM</a></li>
+        <li><a href="#">WhatsApp</a></li>
+        <li><a href="#">Email Us</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 SuruBow by Suruchi. Made with 💖 in India</span>
+    <span>Privacy · Terms · Shipping Policy</span>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ─── Cursor ────────────────────────────────────────────────────────────
+const cur=document.getElementById('cur'),ring=document.getElementById('cur-ring');
+let mx=0,my=0,tx=0,ty=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function loop(){tx+=(mx-tx)*.1;ty+=(my-ty)*.1;ring.style.left=tx+'px';ring.style.top=ty+'px';requestAnimationFrame(loop)})();
+document.querySelectorAll('a,button,.product-card,.how-card,.testi-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cur.classList.add('big'));
+  el.addEventListener('mouseleave',()=>cur.classList.remove('big'));
+});
+
+// ─── Scroll reveal ─────────────────────────────────────────────────────
+const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');ro.unobserve(e.target)}}),{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+// ─── Cart State ─────────────────────────────────────────────────────────
+let cart=[];
+function openCart(){
+  document.getElementById('cart-overlay').classList.add('open');
+  document.getElementById('cart-drawer').classList.add('open');
+}
+function closeCart(){
+  document.getElementById('cart-overlay').classList.remove('open');
+  document.getElementById('cart-drawer').classList.remove('open');
+}
+function addToCart(product){
+  const existing=cart.find(i=>i.id===product.id);
+  if(existing){existing.qty++;} else {cart.push({...product,qty:1});}
+  updateCartUI();
+  showToast(`${product.emoji} ${product.name} added to bag!`);
+}
+function removeFromCart(id){cart=cart.filter(i=>i.id!==id);updateCartUI();}
+function updateCartUI(){
+  const count=cart.reduce((a,i)=>a+i.qty,0);
+  document.getElementById('cart-count').textContent=count;
+  const total=cart.reduce((a,i)=>a+i.price*i.qty,0);
+  document.getElementById('cart-total').textContent='₹'+total.toLocaleString('en-IN');
+  const container=document.getElementById('cart-items');
+  if(cart.length===0){
+    container.innerHTML=`<div class="cart-empty"><span class="empty-icon">🎀</span><p style="font-weight:600;color:var(--dark);margin-bottom:.4rem">Your bag is empty!</p><p style="font-size:.82rem">Add some cute bows & scrunchies 💕</p></div>`;
+    return;
+  }
+  container.innerHTML=cart.map(item=>`
+    <div class="cart-item">
+      <div class="cart-item-img">${item.emoji}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-sub">${item.variant} · Qty: ${item.qty}</div>
+        <div class="cart-item-price">₹${(item.price*item.qty).toLocaleString('en-IN')}</div>
+      </div>
+      <button class="cart-item-remove" onclick="removeFromCart(${item.id})">✕</button>
+    </div>
+  `).join('');
+}
+function checkout(){
+  if(cart.length===0){showToast('Add some items first! 🎀');return;}
+  showToast('🎉 Order placed! We\'ll WhatsApp you shortly 💕');
+  cart=[];updateCartUI();closeCart();
+}
+
+// ─── Toast ─────────────────────────────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+function subscribe(){
+  const v=document.getElementById('email-input').value;
+  if(v&&v.includes('@')){showToast('💕 Welcome to the Bow Club!');document.getElementById('email-input').value='';}
+  else showToast('Please enter a valid email 🌸');
+}
+
+// ─── Products Data ──────────────────────────────────────────────────────
+const products=[
+  {id:1,name:'Classic Pink Bow',variant:'Satin · Medium',price:299,tag:'hot',emoji:'🎀',color:0xf06292,desc:'Satin · Medium'},
+  {id:2,name:'Teal Velvet Scrunchie',variant:'Velvet · Standard',price:199,tag:'new',emoji:'💚',color:0x4dd0c4,desc:'Velvet · Standard'},
+  {id:3,name:'Peach Ruffle Bow',variant:'Chiffon · Large',price:349,tag:'new',emoji:'🍑',color:0xffab76,desc:'Chiffon · Large'},
+  {id:4,name:'Lavender Satin Bow',variant:'Satin · Small',price:249,tag:'hot',emoji:'💜',color:0xce93d8,desc:'Satin · Small'},
+  {id:5,name:'Scrunchie Set of 5',variant:'Mixed Fabric',price:799,tag:'sale',emoji:'🌈',color:0xff8a65,desc:'Mixed · Set of 5'},
+  {id:6,name:'Mint Bow Headband',variant:'Cotton · One-size',price:399,tag:'new',emoji:'🌿',color:0x80cbc4,desc:'Cotton · One-size'},
+];
+
+// Render product cards
+const grid=document.getElementById('products-grid');
+products.forEach((p,i)=>{
+  const tagClass={hot:'tag-hot',new:'tag-new',sale:'tag-sale'}[p.tag]||'tag-new';
+  const tagLabel={hot:'🔥 Popular',new:'✨ New',sale:'🏷️ Sale'}[p.tag]||'New';
+  const card=document.createElement('div');
+  card.className='product-card reveal'+(i>0?' d'+(i%3):'');
+  card.innerHTML=`
+    <canvas id="pc-${p.id}" class="product-card-canvas"></canvas>
+    <div class="product-wish">🤍</div>
+    <div class="product-card-body">
+      <span class="product-tag ${tagClass}">${tagLabel}</span>
+      <div class="product-name">${p.name}</div>
+      <div class="product-sub">${p.desc}</div>
+      <div class="product-bottom">
+        <div class="product-price">₹${p.price}</div>
+        <button class="add-btn" onclick='addToCart(${JSON.stringify(p)})'>Add to Bag 🛍️</button>
+      </div>
+    </div>`;
+  grid.appendChild(card);
+  ro.observe(card);
+  // Build mini 3D scene for card
+  setTimeout(()=>buildCardScene(p),100*i);
+});
+
+// ─── Three.js: Card Mini Scenes ─────────────────────────────────────────
+function buildCardScene(p){
+  const cv=document.getElementById('pc-'+p.id);
+  if(!cv)return;
+  const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+  r.setPixelRatio(Math.min(devicePixelRatio,2));
+  const resize=()=>{r.setSize(cv.clientWidth,cv.clientHeight||220);cam.aspect=cv.clientWidth/(cv.clientHeight||220);cam.updateProjectionMatrix()};
+  const s=new THREE.Scene();
+  const cam=new THREE.PerspectiveCamera(50,1,.1,50);cam.position.z=4;
+  resize();window.addEventListener('resize',resize);
+
+  // Lights
+  s.add(new THREE.AmbientLight(0xffffff,.7));
+  const dl=new THREE.DirectionalLight(0xfff0f5,2.5);dl.position.set(3,4,3);s.add(dl);
+  const pl=new THREE.PointLight(p.color,3,10);pl.position.set(-2,2,2);s.add(pl);
+
+  const mat=new THREE.MeshStandardMaterial({color:p.color,metalness:.3,roughness:.4});
+  const goldMat=new THREE.MeshStandardMaterial({color:0xf9c74f,metalness:.9,roughness:.1});
+  const g=new THREE.Group();
+
+  if([1,3,4].includes(p.id)){
+    // BOW: two lobes (squished spheres) + knot
+    const lobeMat=new THREE.MeshStandardMaterial({color:p.color,metalness:.2,roughness:.35});
+    // Left lobe
+    const lL=new THREE.Mesh(new THREE.SphereGeometry(.6,32,32),lobeMat);
+    lL.scale.set(1.1,.7,.5);lL.position.set(-.65,0,0);lL.rotation.z=.3;g.add(lL);
+    // Right lobe
+    const lR=new THREE.Mesh(new THREE.SphereGeometry(.6,32,32),lobeMat);
+    lR.scale.set(1.1,.7,.5);lR.position.set(.65,0,0);lR.rotation.z=-.3;g.add(lR);
+    // Knot centre
+    const knot=new THREE.Mesh(new THREE.SphereGeometry(.22,20,20),goldMat);
+    knot.scale.set(1,1,.7);g.add(knot);
+    // Tails
+    const tailGeo=new THREE.ConeGeometry(.18,.6,12);
+    const t1=new THREE.Mesh(tailGeo,lobeMat);t1.position.set(-.3,-.75,0);t1.rotation.z=.4;g.add(t1);
+    const t2=new THREE.Mesh(tailGeo,lobeMat);t2.position.set(.3,-.75,0);t2.rotation.z=-.4;g.add(t2);
+    // Sparkle dots
+    for(let i=0;i<8;i++){
+      const sp=new THREE.Mesh(new THREE.SphereGeometry(.06,8,8),
+        new THREE.MeshStandardMaterial({color:i%2===0?0xffffff:0x4dd0c4,metalness:.5,roughness:.2,emissive:i%2===0?0xffffff:0x4dd0c4,emissiveIntensity:.3}));
+      const a=(i/8)*Math.PI*2;
+      sp.position.set(Math.cos(a)*1.4,Math.sin(a)*1.4,.2);g.add(sp);
+    }
+  } else if([2,5,6].includes(p.id)){
+    // SCRUNCHIE: torus with fabric-like bumps
+    const torusMat=new THREE.MeshStandardMaterial({color:p.color,metalness:.1,roughness:.6});
+    const torus=new THREE.Mesh(new THREE.TorusGeometry(.8,.3,24,80),torusMat);g.add(torus);
+    // Fabric gathers (small bumps)
+    for(let i=0;i<12;i++){
+      const a=(i/12)*Math.PI*2;
+      const bump=new THREE.Mesh(new THREE.SphereGeometry(.15,12,12),torusMat);
+      bump.position.set(Math.cos(a)*.8,Math.sin(a)*.8,0);
+      bump.scale.set(1,1,.5);g.add(bump);
+    }
+    // Elastic band
+    const elastic=new THREE.Mesh(new THREE.TorusGeometry(.8,.05,8,60),goldMat);g.add(elastic);
+    // Sparkle dots around
+    for(let i=0;i<6;i++){
+      const a=(i/6)*Math.PI*2;
+      const sp=new THREE.Mesh(new THREE.SphereGeometry(.05,8,8),
+        new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xffffff,emissiveIntensity:.5}));
+      sp.position.set(Math.cos(a)*1.3,Math.sin(a)*1.3,.3);g.add(sp);
+    }
+  }
+
+  s.add(g);
+  let hovered=false;
+  cv.addEventListener('mouseenter',()=>{hovered=true});
+  cv.addEventListener('mouseleave',()=>{hovered=false});
+
+  const clock=new THREE.Clock();
+  (function anim(){
+    requestAnimationFrame(anim);
+    const t=clock.getElapsedTime();
+    g.rotation.y=t*.6+(hovered?.3:0);
+    g.rotation.x=Math.sin(t*.4)*.15;
+    g.position.y=Math.sin(t*.8)*.08;
+    pl.position.x=Math.sin(t*.5)*3;
+    r.render(s,cam);
+  })();
+}
+
+// ─── HERO Three.js Scene ────────────────────────────────────────────────
+const heroCanvas=document.getElementById('hero-canvas');
+const hR=new THREE.WebGLRenderer({canvas:heroCanvas,antialias:true,alpha:true});
+hR.setPixelRatio(Math.min(devicePixelRatio,2));
+
+const hScene=new THREE.Scene();
+const hCam=new THREE.PerspectiveCamera(50,1,.1,100);hCam.position.z=7;
+
+function resizeHero(){
+  const w=heroCanvas.clientWidth,h=heroCanvas.clientHeight||500;
+  hR.setSize(w,h);hCam.aspect=w/h;hCam.updateProjectionMatrix();
+}
+resizeHero();window.addEventListener('resize',resizeHero);
+
+// Lights
+hScene.add(new THREE.AmbientLight(0xfff0f5,.8));
+const hKey=new THREE.DirectionalLight(0xfff0f5,3);hKey.position.set(4,5,4);hScene.add(hKey);
+const hFill=new THREE.DirectionalLight(0x80fff0,1.5);hFill.position.set(-4,2,-2);hScene.add(hFill);
+const hPink=new THREE.PointLight(0xf06292,4,15);hPink.position.set(0,2,3);hScene.add(hPink);
+const hTeal=new THREE.PointLight(0x4dd0c4,3,12);hTeal.position.set(-3,-2,2);hScene.add(hTeal);
+
+// HERO: Large centrepiece bow
+function makeBow(color,scale=1,goldCol=0xf9c74f){
+  const g=new THREE.Group();
+  const mat=new THREE.MeshStandardMaterial({color,metalness:.25,roughness:.3});
+  const gMat=new THREE.MeshStandardMaterial({color:goldCol,metalness:.95,roughness:.08});
+
+  // Lobes — left
+  const lL=new THREE.Mesh(new THREE.SphereGeometry(.7,32,32),mat);
+  lL.scale.set(1.3,.8,.55);lL.position.set(-.85,0,0);lL.rotation.z=.25;g.add(lL);
+  // Lobes — right
+  const lR=new THREE.Mesh(new THREE.SphereGeometry(.7,32,32),mat);
+  lR.scale.set(1.3,.8,.55);lR.position.set(.85,0,0);lR.rotation.z=-.25;g.add(lR);
+  // Inner highlights on lobes
+  const hlMat=new THREE.MeshStandardMaterial({color:0xffffff,transparent:true,opacity:.12,roughness:0,metalness:0});
+  const hlL=new THREE.Mesh(new THREE.SphereGeometry(.4,16,16),hlMat);
+  hlL.position.set(-.7,.25,.3);g.add(hlL);
+  const hlR=new THREE.Mesh(new THREE.SphereGeometry(.4,16,16),hlMat);
+  hlR.position.set(.7,.25,.3);g.add(hlR);
+  // Centre knot
+  const knot=new THREE.Mesh(new THREE.SphereGeometry(.26,24,24),gMat);
+  knot.scale.z=.65;g.add(knot);
+  // Knot gems
+  for(let i=0;i<2;i++){
+    const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.08,0),
+      new THREE.MeshStandardMaterial({color:0xffffff,metalness:.1,roughness:0,transparent:true,opacity:.9}));
+    gem.position.set((i===0?-.1:.1),0,.22);g.add(gem);
+  }
+  // Tails
+  const tMat=new THREE.MeshStandardMaterial({color,metalness:.2,roughness:.4});
+  const t1=new THREE.Mesh(new THREE.ConeGeometry(.2,.8,12),tMat);
+  t1.position.set(-.35,-1.0,0);t1.rotation.z=.35;g.add(t1);
+  const t2=new THREE.Mesh(new THREE.ConeGeometry(.2,.8,12),tMat);
+  t2.position.set(.35,-1.0,0);t2.rotation.z=-.35;g.add(t2);
+  g.scale.setScalar(scale);
+  return g;
+}
+
+// Main large bow
+const heroBow=makeBow(0xf06292,1.5);
+heroBow.position.set(0,.3,0);
+hScene.add(heroBow);
+
+// Orbiting small bows
+const orbitBows=[];
+const bowColors=[0xf06292,0x4dd0c4,0xce93d8,0xffab76,0x80cbc4];
+for(let i=0;i<5;i++){
+  const b=makeBow(bowColors[i],.55);
+  const a=(i/5)*Math.PI*2;
+  b.userData={a,r:2.6+Math.random()*.4,speed:.25+i*.07,phase:i*1.2};
+  hScene.add(b);orbitBows.push(b);
+}
+
+// Floating scrunchies
+const scrunchies=[];
+for(let i=0;i<4;i++){
+  const sg=new THREE.Group();
+  const col=bowColors[(i+2)%5];
+  const sMat=new THREE.MeshStandardMaterial({color:col,metalness:.1,roughness:.55});
+  const st=new THREE.Mesh(new THREE.TorusGeometry(.5,.18,16,50),sMat);sg.add(st);
+  for(let j=0;j<8;j++){
+    const ja=(j/8)*Math.PI*2;
+    const bump=new THREE.Mesh(new THREE.SphereGeometry(.09,8,8),sMat);
+    bump.position.set(Math.cos(ja)*.5,Math.sin(ja)*.5,0);bump.scale.set(1,1,.5);sg.add(bump);
+  }
+  sg.userData={a:(i/4)*Math.PI*2+Math.PI/4,r:3.4,speed:.18+i*.06,phase:i*2};
+  hScene.add(sg);scrunchies.push(sg);
+}
+
+// Sparkle particles
+const spkGeo=new THREE.BufferGeometry();
+const spkPos=new Float32Array(300*3);
+for(let i=0;i<300*3;i++)spkPos[i]=(Math.random()-.5)*10;
+spkGeo.setAttribute('position',new THREE.BufferAttribute(spkPos,3));
+const spkMat=new THREE.PointsMaterial({color:0xf8bbd0,size:.06,transparent:true,opacity:.8});
+hScene.add(new THREE.Points(spkGeo,spkMat));
+
+// Teal accent sparkles
+const tGeo=new THREE.BufferGeometry();
+const tPos=new Float32Array(150*3);
+for(let i=0;i<150*3;i++)tPos[i]=(Math.random()-.5)*8;
+tGeo.setAttribute('position',new THREE.BufferAttribute(tPos,3));
+const tMat2=new THREE.PointsMaterial({color:0x4dd0c4,size:.05,transparent:true,opacity:.7});
+hScene.add(new THREE.Points(tGeo,tMat2));
+
+// Mouse parallax
+let hmx=0,hmy=0,hcx=0,hcy=0;
+document.addEventListener('mousemove',e=>{hmx=(e.clientX/innerWidth-.5);hmy=-(e.clientY/innerHeight-.5);});
+
+// ─── BG Canvas: soft floating bubbles ───────────────────────────────────
+const bgCanvas=document.getElementById('bg-canvas');
+const bgR=new THREE.WebGLRenderer({canvas:bgCanvas,antialias:true,alpha:true});
+bgR.setPixelRatio(1);bgR.setSize(innerWidth,innerHeight);
+const bgScene=new THREE.Scene();
+const bgCam=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,100);bgCam.position.z=10;
+const bubMat=new THREE.MeshStandardMaterial({color:0xfce4ec,metalness:0,roughness:.8,transparent:true,opacity:.35});
+bgScene.add(new THREE.AmbientLight(0xffffff,1));
+const bubbles=[];
+for(let i=0;i<18;i++){
+  const b=new THREE.Mesh(new THREE.SphereGeometry(.3+Math.random()*.5,16,16),
+    new THREE.MeshStandardMaterial({color:[0xf8bbd0,0xb2ebf2,0xf3e5f5,0xfff9c4][i%4],transparent:true,opacity:.18+Math.random()*.1,roughness:.9}));
+  b.position.set((Math.random()-.5)*18,(Math.random()-.5)*12,(Math.random()-.5)*4);
+  b.userData={vy:.015+Math.random()*.02,vx:(Math.random()-.5)*.008,phase:Math.random()*Math.PI*2};
+  bgScene.add(b);bubbles.push(b);
+}
+window.addEventListener('resize',()=>{bgR.setSize(innerWidth,innerHeight);bgCam.aspect=innerWidth/innerHeight;bgCam.updateProjectionMatrix();});
+
+// ─── Main animation loop ─────────────────────────────────────────────────
+const clock=new THREE.Clock();
+(function animate(){
+  requestAnimationFrame(animate);
+  const t=clock.getElapsedTime();
+
+  // Hero scene
+  hcx+=(hmx-hcx)*.04;hcy+=(hmy-hcy)*.04;
+  hCam.position.x=hcx*1.2;hCam.position.y=hcy*.8;hCam.lookAt(0,0,0);
+
+  heroBow.rotation.y=t*.3;
+  heroBow.rotation.x=Math.sin(t*.4)*.1;
+  heroBow.position.y=Math.sin(t*.6)*.12+.3;
+
+  orbitBows.forEach(b=>{
+    const a=b.userData.a+t*b.userData.speed;
+    b.position.x=Math.cos(a)*b.userData.r;
+    b.position.y=Math.sin(t*.5+b.userData.phase)*.5;
+    b.position.z=Math.sin(a)*b.userData.r*.4;
+    b.rotation.y=t*.5;b.rotation.z=Math.sin(t*.4+b.userData.phase)*.2;
+  });
+
+  scrunchies.forEach(sc=>{
+    const a=sc.userData.a+t*sc.userData.speed;
+    sc.position.x=Math.cos(a)*sc.userData.r;
+    sc.position.y=Math.cos(t*.4+sc.userData.phase)*.6;
+    sc.position.z=Math.sin(a)*sc.userData.r*.3;
+    sc.rotation.x=t*.4;sc.rotation.y=t*.3;
+  });
+
+  hPink.position.x=Math.sin(t*.3)*4;
+  hTeal.position.x=Math.cos(t*.4)*3;
+  hR.render(hScene,hCam);
+
+  // BG bubbles
+  bubbles.forEach(b=>{
+    b.position.y+=b.userData.vy;
+    b.position.x+=b.userData.vx;
+    b.position.y+=Math.sin(t*.5+b.userData.phase)*.003;
+    if(b.position.y>8)b.position.y=-8;
+  });
+  bgR.render(bgScene,bgCam);
+})();
+</script>
+</body>
+</html>
